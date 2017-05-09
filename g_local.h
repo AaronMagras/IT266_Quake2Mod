@@ -929,6 +929,7 @@ struct gclient_s
 	float		invincible_framenum;
 	float		breather_framenum;
 	float		enviro_framenum;
+	//float		berserk_framenum;
 
 	qboolean	grenade_blew_up;
 	float		grenade_time;
@@ -1096,4 +1097,3 @@ struct edict_s
 	moveinfo_t		moveinfo;
 	monsterinfo_t	monsterinfo;
 };
-

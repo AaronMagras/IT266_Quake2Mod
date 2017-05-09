@@ -898,7 +898,7 @@ void fire_bfg (edict_t *self, vec3_t start, vec3_t dir, int damage, int speed, f
 	gi.linkentity (bfg);
 }
 
-// Punch (used for Berserk Mode)
+// Punch (used for Berserk Mode) below
 
 void fire_punch (edict_t *self, vec3_t start, vec3_t aim, int reach, int damage, int kick, int quiet, int mod)
 {

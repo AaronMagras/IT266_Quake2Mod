@@ -289,7 +289,7 @@ mmove_t gladiator_move_death = {FRAME_death1, FRAME_death22, gladiator_frames_de
 void gladiator_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
 {
 	int		n;
-
+	float s = crandom();
 // check for gib
 	if (self->health <= self->gib_health)
 	{
@@ -300,15 +300,39 @@ void gladiator_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int da
 			ThrowGib (self, "models/objects/gibs/sm_meat/tris.md2", damage, GIB_ORGANIC);
 		ThrowHead (self, "models/objects/gibs/head2/tris.md2", damage, GIB_ORGANIC);
 		self->deadflag = DEAD_DEAD;
+		if (s <= -.5)																			// Conditional check and randomly spawn armor, Berserk, shells, or health on death. (Low chance for Berserk)
+			SP_item_armor(self);
+		else if (s > -.5 && s < -.3)
+			SP_item_Berserk(self);	
+		else if (s > -.3 && s < .3)
+			SP_item_ammo(self);
+		else
+			SP_item_health(self);
 		return;
 	}
 
 	if (self->deadflag == DEAD_DEAD)
+		if (s <= -.5)																			// Conditional check and randomly spawn armor, Berserk, shells, or health on death. (Low chance for Berserk)
+			SP_item_armor(self);
+		else if (s > -.5 && s < -.3)
+			SP_item_Berserk(self);	
+		else if (s > -.3 && s < .3)
+			SP_item_ammo(self);
+		else
+			SP_item_health(self);
 		return;
 
 // regular death
 	gi.sound (self, CHAN_VOICE, sound_die, 1, ATTN_NORM, 0);
 	self->deadflag = DEAD_DEAD;
+	if (s <= -.5)																			// Conditional check and randomly spawn armor, Berserk, shells, or health on death. (Low chance for Berserk)
+			SP_item_armor(self);
+		else if (s > -.5 && s < -.3)
+			SP_item_Berserk(self);	
+		else if (s > -.3 && s < .3)
+			SP_item_ammo(self);
+		else
+			SP_item_health(self);
 	self->takedamage = DAMAGE_YES;
 
 	self->monsterinfo.currentmove = &gladiator_move_death;
@@ -343,9 +367,9 @@ void SP_monster_gladiator (edict_t *self)
 	VectorSet (self->mins, -32, -32, -24);
 	VectorSet (self->maxs, 32, 32, 64);
 
-	self->health = 400;
+	self->health = 300;
 	self->gib_health = -175;
-	self->mass = 400;
+	self->mass = 300;
 
 	self->pain = gladiator_pain;
 	self->die = gladiator_die;

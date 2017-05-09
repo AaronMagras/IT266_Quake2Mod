@@ -405,7 +405,7 @@ void	Use_Berserk (edict_t *ent, gitem_t *item)
 	}
 	else
 	{
-		timeout = 300;
+		timeout = 175; //changed from 300
 	}
 
 	if (ent->client->quad_framenum > level.framenum)
@@ -413,9 +413,10 @@ void	Use_Berserk (edict_t *ent, gitem_t *item)
 	else
 		ent->client->quad_framenum = level.framenum + timeout;
 
-	gi.sound(ent, CHAN_ITEM, gi.soundindex("player/male/death3.wav"), 1, ATTN_NORM, 0);
+	gi.sound(ent, CHAN_ITEM, gi.soundindex("player/male/death3.wav"), 1, ATTN_NORM, 0); // Scream and take out robo-fist
 	ent->client->newweapon = FindItem ("Smaggd");
-		return;
+	gi.centerprintf(ent,"You have gone Berserk!\n"); // Display notification to screen
+	return;
 }
 
 //======================================================================
@@ -634,9 +635,9 @@ qboolean Pickup_Armor (edict_t *ent, edict_t *other)
 	if (ent->item->tag == ARMOR_SHARD)
 	{
 		if (!old_armor_index)
-			other->client->pers.inventory[jacket_armor_index] = 2;
+			other->client->pers.inventory[jacket_armor_index] = 5;
 		else
-			other->client->pers.inventory[old_armor_index] += 2;
+			other->client->pers.inventory[old_armor_index] += 5;
 	}
 
 	// if player has no armor, just use it
@@ -1079,7 +1080,7 @@ void SpawnItem (edict_t *ent, gitem_t *item)
 		if (strcmp(ent->classname, "key_power_cube") != 0)
 		{
 			ent->spawnflags = 0;
-			gi.dprintf("%s at %s has invalid spawnflags set\n", ent->classname, vtos(ent->s.origin));
+			//gi.dprintf("%s at %s has invalid spawnflags set\n", ent->classname, vtos(ent->s.origin));
 		}
 	}
 
@@ -1297,7 +1298,7 @@ gitem_t	itemlist[] =
 	// WEAPONS 
 	//
 
-// Fists
+// Fists								NEW WEAPON
 	{
 		"weapon_fists", 
 		NULL,
@@ -1319,7 +1320,7 @@ gitem_t	itemlist[] =
 		""
 	},
 
-// Smaggd
+// Smaggd								NEW WEAPON
 	{
 		"Weapon_Smaggd",
 		Pickup_Weapon,
@@ -1332,8 +1333,8 @@ gitem_t	itemlist[] =
         "w_rlauncher",
 		"Smaggd",
 		0,
-		1,
-		"Bullets",
+		0,
+		NULL,
 		IT_WEAPON|IT_STAY_COOP,
 		WEAP_Smaggd,
 		NULL,
@@ -1358,7 +1359,7 @@ gitem_t	itemlist[] =
 /* pickup */	"Shotgun",
 		0,
 		1,
-		"Shells",
+		NULL,								//"Shells",
 		IT_WEAPON|IT_STAY_COOP,
 		WEAP_SHOTGUN,
 		NULL,
@@ -1389,7 +1390,7 @@ gitem_t	itemlist[] =
 /* precache */ "weapons/sshotf1b.wav"
 	},
 
-/*QUAKED weapon_machinegun (.3 .3 1) (-16 -16 -16) (16 16 16)
+/*QUAKED weapon_machinegun (.3 .3 1) (-16 -16 -16) (16 16 16) NEW WEAPON
 */
 	// Smaggd
 	{
@@ -1405,7 +1406,7 @@ gitem_t	itemlist[] =
 		"Smaggd",
 		0,
 		1,
-		"Bullets",
+		"Shells",
 		IT_WEAPON|IT_STAY_COOP,
 		WEAP_Smaggd,
 		NULL,
@@ -1505,7 +1506,7 @@ gitem_t	itemlist[] =
 /* precache */ "models/objects/rocket/tris.md2 weapons/rockfly.wav weapons/rocklf1a.wav weapons/rocklr1b.wav models/objects/debris2/tris.md2"
 	},
 
-/*QUAKED weapon_hyperblaster (.3 .3 1) (-16 -16 -16) (16 16 16)
+/*QUAKED weapon_hyperblaster (.3 .3 1) (-16 -16 -16) (16 16 16) // HyperBlaster does not require any ammo. 
 */
 	{
 		"weapon_hyperblaster", 
@@ -1519,7 +1520,7 @@ gitem_t	itemlist[] =
 /* icon */		"w_hyperblaster",
 /* pickup */	"HyperBlaster",
 		0,
-		1,
+		0,
 		"Cells",
 		IT_WEAPON|IT_STAY_COOP,
 		WEAP_HYPERBLASTER,
@@ -1527,6 +1528,7 @@ gitem_t	itemlist[] =
 		0,
 /* precache */ "weapons/hyprbu1a.wav weapons/hyprbl1a.wav weapons/hyprbf1a.wav weapons/hyprbd1a.wav misc/lasfly.wav"
 	},
+
 
 /*QUAKED weapon_railgun (.3 .3 1) (-16 -16 -16) (16 16 16)
 */
@@ -2174,7 +2176,7 @@ tank commander's head
 
 /*QUAKED item_health (.3 .3 1) (-16 -16 -16) (16 16 16)
 */
-void SP_item_health (edict_t *self)
+void SP_item_armor (edict_t *self)												// BELOW ARE NEW SPAWN FUNCTIONS CREATED
 {
 	if ( deathmatch->value && ((int)dmflags->value & DF_NO_HEALTH) )
 	{
@@ -2182,15 +2184,98 @@ void SP_item_health (edict_t *self)
 		return;
 	}
 
-	self->model = "models/items/healing/medium/tris.md2";
-	self->count = 10;
+	self->model = "models/items/armor/shard/tris.md2";
+	self->count = 15;
+	SpawnItem (self, FindItem ("Armor Shard"));
+	gi.soundindex ("misc/am_pkup.wav");
+}
+
+void SP_item_Berserk (edict_t *self)
+{
+	if ( deathmatch->value && ((int)dmflags->value & DF_NO_HEALTH) )
+	{
+		G_FreeEdict (self);
+		return;
+	}
+
+	self->model = "models/items/invulner/tris.md2";
+	self->count = 1;
+	SpawnItem (self, FindItem ("Berserk"));
+	gi.soundindex ("misc/am_pkup.wav");
+}
+
+void SP_item_shells (edict_t *self)										// Not necessary for mod. Shotgun was modified to not need ammo. 
+{
+	if ( deathmatch->value && ((int)dmflags->value & DF_NO_HEALTH) )
+	{
+		G_FreeEdict (self);
+		return;
+	}
+
+	self->model = "models/items/ammo/shells/medium/tris.md2";
+	self->count = 5;
+	SpawnItem (self, FindItem ("Shells"));
+	gi.soundindex ("misc/am_pkup.wav");
+}
+
+void SP_item_rlauncher (edict_t *self)										// function to spawn rocket launcher
+{
+	gitem_t		*item;
+	if ( deathmatch->value && ((int)dmflags->value & DF_NO_HEALTH) )
+	{
+		G_FreeEdict (self);
+		return;
+	}
+
+	self->model = "models/weapons/g_rocket/tris.md2";
+	self->count = 1;
+	// SpawnItem (self, FindItem ("Shotgun"));
+	item = FindItem ("Rocket Launcher");
+	SpawnItem (self, item);
+	gi.soundindex ("misc/am_pkup.wav");
+}
+
+void SP_item_ammo (edict_t *self)										
+{
+	float s = crandom();
+	if ( deathmatch->value && ((int)dmflags->value & DF_NO_HEALTH) )
+	{
+		G_FreeEdict (self);
+		return;
+	}
+	if (s >= 0)		// about 50% chance to spawn rockets when function is invoked
+	{
+		self->model = "models/items/ammo/rockets/medium/tris.md2";
+		self->count = 3;
+		SpawnItem (self, FindItem ("Rockets"));
+		gi.soundindex ("misc/am_pkup.wav");
+	}
+	else            // about 50% chance to spawn 
+	{
+		self->model = "models/items/ammo/shells/medium/tris.md2";
+		self->count = 1;
+		SpawnItem (self, FindItem ("Shells"));
+		gi.soundindex ("misc/am_pkup.wav");
+	}
+}
+
+void SP_item_health (edict_t *self)												// LAST NEW SPAWN FUNCTION
+{
+	if ( deathmatch->value && ((int)dmflags->value & DF_NO_HEALTH) )
+	{
+		G_FreeEdict (self);
+		return;
+	}
+
+	self->model =  "models/items/healing/stimpack/tris.md2";
+	self->count = 15;
 	SpawnItem (self, FindItem ("Health"));
 	gi.soundindex ("items/n_health.wav");
 }
 
 /*QUAKED item_health_small (.3 .3 1) (-16 -16 -16) (16 16 16)
 */
-void SP_item_health_small (edict_t *self)
+void SP_item_health_small (edict_t *self)							
 {
 	if ( deathmatch->value && ((int)dmflags->value & DF_NO_HEALTH) )
 	{
@@ -2199,9 +2284,9 @@ void SP_item_health_small (edict_t *self)
 	}
 
 	self->model = "models/items/healing/stimpack/tris.md2";
-	self->count = 2;
+	self->count = 5;
 	SpawnItem (self, FindItem ("Health"));
-	//self->style = HEALTH_IGNORE_MAX;
+	//self->style = HEALTH_IGNORE_MAX;   the player should be fine lmao
 	gi.soundindex ("items/s_health.wav");
 }
 

@@ -2,8 +2,9 @@
 #include "m_player.h"
 
 void ClientUserinfoChanged (edict_t *ent, char *userinfo);
-
+void spawn_monster(edict_t *self);
 void SP_misc_teleporter_dest (edict_t *ent);
+int sm = 0;
 
 //
 // Gross, ugly, disgustuing hack section
@@ -584,7 +585,6 @@ void player_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damag
 /*
 ==============
 InitClientPersistant
-
 This is only called when the game first initializes in single player,
 but is called after each death and level change in deathmatch
 ==============
@@ -595,7 +595,7 @@ void InitClientPersistant (gclient_t *client)
 
 	memset (&client->pers, 0, sizeof(client->pers));
 
-	item = FindItem("Hands");
+	item = FindItem("Shotgun");
 	client->pers.selected_item = ITEM_INDEX(item);
 	client->pers.inventory[client->pers.selected_item] = 1;
 
@@ -625,7 +625,6 @@ void InitClientResp (gclient_t *client)
 /*
 ==================
 SaveClientData
-
 Some information that should be persistant, like health, 
 is still stored in the edict structure, so it needs to
 be mirrored out to the client structure before all the
@@ -663,16 +662,13 @@ void FetchClientEntData (edict_t *ent)
 
 /*
 =======================================================================
-
   SelectSpawnPoint
-
 =======================================================================
 */
 
 /*
 ================
 PlayersRangeFromSpot
-
 Returns the distance to the nearest player from the given spot
 ================
 */
@@ -710,7 +706,6 @@ float	PlayersRangeFromSpot (edict_t *spot)
 /*
 ================
 SelectRandomDeathmatchSpawnPoint
-
 go to a random point, but NOT the two points closest
 to other players
 ================
@@ -768,7 +763,6 @@ edict_t *SelectRandomDeathmatchSpawnPoint (void)
 /*
 ================
 SelectFarthestDeathmatchSpawnPoint
-
 ================
 */
 edict_t *SelectFarthestDeathmatchSpawnPoint (void)
@@ -853,7 +847,6 @@ edict_t *SelectCoopSpawnPoint (edict_t *ent)
 /*
 ===========
 SelectSpawnPoint
-
 Chooses a player start, deathmatch start, coop start, etc
 ============
 */
@@ -1074,7 +1067,6 @@ void spectator_respawn (edict_t *ent)
 /*
 ===========
 PutClientInServer
-
 Called when a player connects to a server or respawns in
 a deathmatch.
 ============
@@ -1245,7 +1237,6 @@ void PutClientInServer (edict_t *ent)
 /*
 =====================
 ClientBeginDeathmatch
-
 A client has just connected to the server in 
 deathmatch mode, so clear everything out before starting them.
 =====================
@@ -1282,7 +1273,6 @@ void ClientBeginDeathmatch (edict_t *ent)
 /*
 ===========
 ClientBegin
-
 called when a client has finished connecting, and is ready
 to be placed into the game.  This will happen every level load.
 ============
@@ -1290,7 +1280,7 @@ to be placed into the game.  This will happen every level load.
 void ClientBegin (edict_t *ent)
 {
 	int		i;
-
+	sm = 0; //num of spawned monsters 
 	ent->client = game.clients + (ent - g_edicts - 1);
 
 	if (deathmatch->value)
@@ -1341,14 +1331,16 @@ void ClientBegin (edict_t *ent)
 
 	// make sure all view stuff is valid
 	ClientEndServerFrame (ent);
+	ent->nextthink = level.time +0.1;
+	gi.centerprintf(ent, "Start your Killing Spree!\n");
+	spawn_monster(ent);
+	sm++;
 }
 
 /*
 ===========
 ClientUserInfoChanged
-
 called whenever the player updates a userinfo variable.
-
 The game can override any of the settings in place
 (forcing skins or names, etc) before copying it off.
 ============
@@ -1413,7 +1405,6 @@ void ClientUserinfoChanged (edict_t *ent, char *userinfo)
 /*
 ===========
 ClientConnect
-
 Called when a player begins connecting to the server.
 The game can refuse entrance to a client by returning false.
 If the client is allowed, the connection process will continue
@@ -1491,7 +1482,6 @@ qboolean ClientConnect (edict_t *ent, char *userinfo)
 /*
 ===========
 ClientDisconnect
-
 Called when a player drops from the server.
 Will not be called between levels.
 ============
@@ -1557,7 +1547,6 @@ void PrintPmove (pmove_t *pm)
 /*
 ==============
 ClientThink
-
 This will be called once for each client frame, which will
 usually be a couple times for each server frame.
 ==============
@@ -1565,7 +1554,7 @@ usually be a couple times for each server frame.
 void ClientThink (edict_t *ent, usercmd_t *ucmd)
 {
 	gclient_t	*client;
-	edict_t	*other;
+	edict_t	*other; 
 	int		i, j;
 	pmove_t	pm;
 
@@ -1687,7 +1676,6 @@ void ClientThink (edict_t *ent, usercmd_t *ucmd)
 				continue;
 			other->touch (other, ent, NULL, NULL);
 		}
-
 	}
 
 	client->oldbuttons = client->buttons;
@@ -1736,13 +1724,19 @@ void ClientThink (edict_t *ent, usercmd_t *ucmd)
 		if (other->inuse && other->client->chase_target == ent)
 			UpdateChaseCam(other);
 	}
+	// Check to see if Player is in Berserk Mode - DOESNT WORK
+	
+	if(ent->client->quad_framenum == 0)
+		FindItem("Shotgun");
+	else
+		return;
 }
+
 
 
 /*
 ==============
 ClientBeginServerFrame
-
 This will be called once for each server frame, before running
 any other entities in the world.
 ==============

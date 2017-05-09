@@ -443,16 +443,16 @@ void G_SetStats (edict_t *ent)
 		ent->client->ps.stats[STAT_TIMER2_ICON] = gi.imageindex ("p_Berserk");
 		ent->client->ps.stats[STAT_TIMER2] = (ent->client->invincible_framenum - level.framenum)/10;
 	}
-	else							// New
+	else							// New from QDevels Tutorial. Going to use them for counters instead of timers
 	{							// New
 		ent->client->ps.stats[STAT_TIMER2_ICON] = 0;	// New
 		ent->client->ps.stats[STAT_TIMER2] = 0;		// New
 	}							// New
 	
-	if (ent->client->enviro_framenum > level.framenum)
+	if (level.killed_monsters >= 0)   // KILL COUNT TEST
 	{
-		ent->client->ps.stats[STAT_TIMER3_ICON] = gi.imageindex ("p_envirosuit");
-		ent->client->ps.stats[STAT_TIMER3] = (ent->client->enviro_framenum - level.framenum)/10;
+		ent->client->ps.stats[STAT_TIMER3_ICON] = gi.imageindex ("p_invulnerability");
+		ent->client->ps.stats[STAT_TIMER3] = level.killed_monsters;
 	}
 	else							// New
 	{							// New
@@ -460,10 +460,10 @@ void G_SetStats (edict_t *ent)
 		ent->client->ps.stats[STAT_TIMER3] = 0;		// New
 	}							// New
 	
-	if (ent->client->breather_framenum > level.framenum)
+	if (level.total_monsters > 0)
 	{
-		ent->client->ps.stats[STAT_TIMER4_ICON] = gi.imageindex ("p_rebreather");
-		ent->client->ps.stats[STAT_TIMER4] = (ent->client->breather_framenum - level.framenum)/10;
+		ent->client->ps.stats[STAT_TIMER4_ICON] = gi.imageindex ("p_quad");
+		ent->client->ps.stats[STAT_TIMER4] = (level.time);
 	}
 	else							// New
 	{							// New

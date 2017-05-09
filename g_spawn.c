@@ -671,39 +671,39 @@ char *single_statusbar =
 
 // timer
 "if 9 "
-"	yb	-24 "		// New. Set Y-cursor -24 pixels from physical screen bottom
-"	xr	-58 "		// New. Set X-cursor -58 pixels from physical screen right
+"	yb	-24 "		
+"	xr	-58 "		// Moves Timer
 "	num	2	10 "
-"	xr	-24 "		// New
+"	xr	-24 "		
 "	pic	9 "
 "endif "
         
-// timer2			// New
-"if 16 "			// New. If STAT_TIMER2_ICON is not zero, then do
-"	yb	-48 "		// New
-"	xr	-58 "		// New
-"	num	2	17 "	// New. Display 2-digits with value from stat-array at index 17
-"	xr	-24 "		// New
-"	pic	16 "		// New. Display icon
-"endif "			// New
+// timer2			
+"if 16 "			
+"	yb	-48 "		
+"	xr	-58 "		
+"	num	2	16 "
+"	xr	-24 "		
+"	pic	18 "		// Adds Second Timer
+"endif "			
         
-// timer3			// New
-"if 18 "			// New. If STAT_TIMER3_ICON is not zero, then do
-"	yb	-72 "		// New
-"	xr	-58 "		// New
-"	num	2	19 "	// New. Display 2-digits with value from stat-array at index 19
-"	xr	-24 "		// New
-"	pic	18 "		// New. Display icon
-"endif "			// New
+// timer3			
+"if 20 "			
+"	yb	-72 "	
+"	xr	-58 "		
+"	num	2	21 "	
+"	xr	-24 "	
+"   pic 20 "
+"endif "			
 
-// timer4			// New
-"if 20 "			// New. If STAT_TIMER4_ICON is not zero, then do
-"	yb	-96 "		// New
-"	xr	-58 "		// New
-"	num	2	21 "	// New. Display 2-digits with value from stat-array at index 21
-"	xr	-24 "		// New
-"	pic	20 "		// New. Display icon
-"endif "			// New
+// timer4			
+"if 22 "			
+"	yb	-96 "		
+"	xr	-58 "		
+"	num	2	23 "	
+"	xr	-24 "
+"   pic 22 "
+"endif "			
         
 //  help / weapon icon 
 "if 11 "

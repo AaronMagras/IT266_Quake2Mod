@@ -1129,19 +1129,41 @@ void soldier_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int dama
 // check for gib
 	if (self->health <= self->gib_health)
 	{
+		
+		float s = crandom();																	// will determine what soldier spawns on death
 		gi.sound (self, CHAN_VOICE, gi.soundindex ("misc/udeath.wav"), 1, ATTN_NORM, 0);
 		for (n= 0; n < 3; n++)
 			ThrowGib (self, "models/objects/gibs/sm_meat/tris.md2", damage, GIB_ORGANIC);
 		ThrowGib (self, "models/objects/gibs/chest/tris.md2", damage, GIB_ORGANIC);
 		ThrowHead (self, "models/objects/gibs/head2/tris.md2", damage, GIB_ORGANIC);
-		self->deadflag = DEAD_DEAD;
-		SP_item_health_small(self);
+		self->deadflag = DEAD_DEAD;																						
+		if (s <= -.5)																			// Conditional check and randomly spawn armor, Berserk, shells, or health on death. (Low chance for Berserk)
+			SP_item_armor(self);
+		else if (s > -.5 && s < -.3)
+			SP_item_Berserk(self);	
+		else if (s > -.3 && s < .3)
+			SP_item_ammo(self);
+		else
+			SP_item_health(self);
+		gi.unlinkentity(self);
 		return;
+
 	}
 
 	if (self->deadflag == DEAD_DEAD)
-		SP_item_health_small(self);
-		return;
+	{
+		float s = crandom();
+		if (s <= -.3)
+			SP_item_armor(self);
+		else if (s > -.3 && s < -.1)
+			SP_item_Berserk(self);
+		else if (s > -.1 && s < .3)
+			SP_item_shells(self);
+		else
+			SP_item_health(self);
+		gi.unlinkentity(self);
+	}
+	return;
 
 // regular death
 	self->deadflag = DEAD_DEAD;

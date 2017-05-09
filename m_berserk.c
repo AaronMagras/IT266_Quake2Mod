@@ -17,6 +17,9 @@ static int sound_punch;
 static int sound_sight;
 static int sound_search;
 
+void spawn_monster(edict_t *self);
+void SP_monster_mutant(edict_t *self);
+
 void berserk_sight (edict_t *self, edict_t *other)
 {
 	gi.sound (self, CHAN_VOICE, sound_sight, 1, ATTN_NORM, 0);
@@ -362,7 +365,7 @@ mmove_t berserk_move_death2 = {FRAME_deathc1, FRAME_deathc8, berserk_frames_deat
 void berserk_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
 {
 	int		n;
-
+	float	s;
 	if (self->health <= self->gib_health)
 	{
 		gi.sound (self, CHAN_VOICE, gi.soundindex ("misc/udeath.wav"), 1, ATTN_NORM, 0);
@@ -372,14 +375,35 @@ void berserk_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int dama
 			ThrowGib (self, "models/objects/gibs/sm_meat/tris.md2", damage, GIB_ORGANIC);
 		ThrowHead (self, "models/objects/gibs/head2/tris.md2", damage, GIB_ORGANIC);
 		self->deadflag = DEAD_DEAD;
+		if(level.killed_monsters <= 20)
+		{
+			spawn_monster(self);
+			gi.linkentity(self);
+		}
+		else
+			SP_monster_mutant(self);
 		return;
 	}
 
 	if (self->deadflag == DEAD_DEAD)
+		if(level.killed_monsters <= 20)
+		{
+			spawn_monster(self);
+			gi.linkentity(self);
+		}
+		else
+			SP_monster_mutant(self);
 		return;
 
 	gi.sound (self, CHAN_VOICE, sound_die, 1, ATTN_NORM, 0);
 	self->deadflag = DEAD_DEAD;
+	if(level.killed_monsters <= 20)
+		{
+			spawn_monster(self);
+			gi.linkentity(self);
+		}
+		else
+			SP_monster_mutant(self);
 	self->takedamage = DAMAGE_YES;
 
 	if (damage >= 50)
@@ -429,10 +453,11 @@ void SP_monster_berserk (edict_t *self)
 	self->monsterinfo.sight = berserk_sight;
 	self->monsterinfo.search = berserk_search;
 
-	self->monsterinfo.currentmove = &berserk_move_stand;
+	//self->monsterinfo.currentmove = &berserk_move_stand;
 	self->monsterinfo.scale = MODEL_SCALE;
 
 	gi.linkentity (self);
 
 	walkmonster_start (self);
 }
+

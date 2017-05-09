@@ -9,6 +9,11 @@
 // and we can mess it up based on skill.  Spread should be for normal
 // and we can tighten or loosen based on skill.  We could muck with
 // the damages too, but I'm not sure that's such a good idea.
+SP_monster_berserk(edict_t *self);
+void berserk_run(edict_t *self);
+int x_pts[6];
+int z_pts[6];
+
 void monster_fire_bullet (edict_t *self, vec3_t start, vec3_t dir, int damage, int kick, int hspread, int vspread, int flashtype)
 {
 	fire_bullet (self, start, dir, damage, kick, hspread, vspread, MOD_UNKNOWN);
@@ -718,4 +723,65 @@ void swimmonster_start (edict_t *self)
 	self->flags |= FL_SWIM;
 	self->think = swimmonster_start_go;
 	monster_start (self);
+}
+
+char space_occupied(edict_t* self, vec3_t spawn_pt) // boolean to check to see if space is occupied
+{
+	char is_occ = 0;
+	int i;
+	for(i=0; i < globals.num_edicts; i++)
+	{
+		if(VectorCompare(g_edicts[i].s.origin, spawn_pt))
+			is_occ = 1;
+	}
+	return is_occ;
+}
+
+void set_pts() // Attempt at spawning shit based on an array thatll choose the x and z points. y will
+	// always be 50. I've tried VectorSet arrays for spawn points but the monsters endlessly spawn 
+	// until the game crashes. This doesnt work either :^(
+{
+	x_pts[0] = 10;
+	x_pts[1] = 20;
+	x_pts[2] = 30;
+	x_pts[3] = 40;
+	x_pts[4] = 50;
+	x_pts[5] = 60;
+	z_pts[0] = 10;
+	z_pts[1] = 20;
+	z_pts[2] = 30;
+	z_pts[3] = 40;
+	z_pts[4] = 50;
+	z_pts[5] = 60;
+}
+
+void spawn_monster(edict_t *self)
+{
+	 edict_t *mon = G_Spawn();
+	 int i;
+	 if(space_occupied(mon, mon->s.origin))
+	 {
+		
+		VectorSet(mon->s.origin, 50, 50, 50);
+		 //mon->s.origin[0] += 20;
+		
+	 }
+	 else if(space_occupied(self, mon->s.origin))
+	 {
+		 //VectorSet(mon->s.origin, 30, 50, 20);
+		 //M_droptofloor();
+	 }
+	 //for(i = 0; i < 6; i++)
+	 //{
+		// VectorSet(mon->s.origin, x_pts[i], 50, z_pts[i]);
+		SP_monster_berserk(mon);
+		self->movetype = MOVETYPE_STEP;
+		self->solid = SOLID_BBOX;
+		gi.linkentity(mon);
+		//gi.cprintf(self, PRINT_HIGH, "An Enemy has Spawned!\n");
+		self->monsterinfo.pausetime = level.time + 2 * FRAMETIME;	 
+	 
+	 walkmonster_start(mon); 
+	 self->monsterinfo.currentmove = &berserk_run;
+	 
 }

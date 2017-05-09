@@ -8,8 +8,7 @@ mutant
 
 #include "g_local.h"
 #include "m_mutant.h"
-
-
+void spawn_monster(edict_t *self);
 static int	sound_swing;
 static int	sound_hit;
 static int	sound_hit2;
@@ -565,10 +564,12 @@ void mutant_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damag
 			ThrowGib (self, "models/objects/gibs/sm_meat/tris.md2", damage, GIB_ORGANIC);
 		ThrowHead (self, "models/objects/gibs/head2/tris.md2", damage, GIB_ORGANIC);
 		self->deadflag = DEAD_DEAD;
+		SP_item_rlauncher(self);															// Mutant will be treated as mini-boss. Mini-boss drops the rocket launcher. 
 		return;
 	}
 
 	if (self->deadflag == DEAD_DEAD)
+		SP_item_rlauncher(self);
 		return;
 
 	gi.sound (self, CHAN_VOICE, sound_death, 1, ATTN_NORM, 0);
@@ -617,9 +618,9 @@ void SP_monster_mutant (edict_t *self)
 	VectorSet (self->mins, -32, -32, -24);
 	VectorSet (self->maxs, 32, 32, 48);
 
-	self->health = 300;
+	self->health = 700;
 	self->gib_health = -120;
-	self->mass = 300;
+	self->mass = 700;
 
 	self->pain = mutant_pain;
 	self->die = mutant_die;

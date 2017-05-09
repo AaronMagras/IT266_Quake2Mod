@@ -335,7 +335,6 @@ void actor_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage
 	}
 
 	if (self->deadflag == DEAD_DEAD)
-		SpawnItem (self, FindItem ("Health"));
 		return;
 
 // regular death

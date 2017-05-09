@@ -278,10 +278,10 @@ void NoAmmoWeaponChange (edict_t *ent)
 		ent->client->newweapon = FindItem ("chaingun");
 		return;
 	}
-	if ( ent->client->pers.inventory[ITEM_INDEX(FindItem("bullets"))]
-		&&  ent->client->pers.inventory[ITEM_INDEX(FindItem("Smaggd"))] )
+	if ( ent->client->pers.inventory[ITEM_INDEX(FindItem("Cells"))] // Cells drop from monsters. if we find both Cells and a hyperblaster in inventory switch to default weapon (hyperblaster)
+		&&  ent->client->pers.inventory[ITEM_INDEX(FindItem("HyperBlaster"))] )
 	{
-		ent->client->newweapon = FindItem ("Smaggd");
+		ent->client->newweapon = FindItem ("HyperBlaster");
 		return;
 	}
 	if ( ent->client->pers.inventory[ITEM_INDEX(FindItem("shells"))] > 1
@@ -792,7 +792,7 @@ void Weapon_RocketLauncher_Fire (edict_t *ent)
 	float	damage_radius;
 	int		radius_damage;
 
-	damage = 100 + (int)(random() * 20.0);
+	damage = 350 + (int)(random() * 20.0);					// Rocket Damage buffed
 	radius_damage = 120;
 	damage_radius = 120;
 	if (is_quad)
@@ -936,14 +936,14 @@ void Weapon_HyperBlaster_Fire (edict_t *ent)
 			offset[2] = 8 * cos(rotation);
 			Blaster_Fire (ent, offset, 1, true, effect);
 
-			// alt fire 2
+			// second projectile
 			rotation = (ent->client->ps.gunframe - 5) * 2*M_PI/6 + M_PI*2.0/3.0;
 			offset[0] = 0;
 			offset[1] = -8 * sin(rotation);
 			offset[2] = 8 * cos(rotation);
 			Blaster_Fire (ent, offset, 1, true, effect);
 
-			// alt fire 3
+			// third projectile
 			rotation = (ent->client->ps.gunframe - 5) * 2*M_PI/6 + M_PI*4.0/3.0;
 			offset[0] = 0;
 			offset[1] = -8 * sin(rotation);
@@ -1216,7 +1216,7 @@ void weapon_shotgun_fire (edict_t *ent)
 	vec3_t		start;
 	vec3_t		forward, right;
 	vec3_t		offset;
-	int			damage = 4;
+	int			damage = 20;
 	int			kick = 8;
 
 	if (ent->client->ps.gunframe == 9)
@@ -1519,7 +1519,7 @@ void Fire_Smaggd(edict_t *ent)
   vec3_t    start;
   vec3_t    forward, right;
   vec3_t    angles;
-  int     damage = 30;
+  int     damage = 125; // up from 75. Should work as an insta-kill on most mobs. 
   int     kick = 5;
   vec3_t    offset;
 
